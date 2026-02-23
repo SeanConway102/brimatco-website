@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Brimatco "Engineering Archive" palette */
+  --background: #F9F7F2;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+  --primary: #1A1A1A;
+  --primary-foreground: #F9F7F2;
+  --secondary: #5D6D7E;
+  --secondary-foreground: #F9F7F2;
+  --muted: #E8E4DC;
+  --muted-foreground: #5D6D7E;
+  --accent: #5D6D7E;
+  --accent-foreground: #F9F7F2;
+  --destructive: #BD1E2D;
+  --destructive-foreground: #FFFFFF;
+  --border: #D4CFC6;
+  --input: #D4CFC6;
+  --ring: #BD1E2D;
+  --radius: 0.25rem;
+
+  /* Custom Brimatco tokens */
+  --ruby: #BD1E2D;
+  --ruby-hover: #A01825;
+  --vellum: #F9F7F2;
+  --cast-iron: #1A1A1A;
+  --drafting-grey: #5D6D7E;
+  --steel: #4A4A4A;
+}
+
+@theme inline {
+  --font-sans: var(--font-barlow), 'Barlow Condensed', sans-serif;
+  --font-mono: var(--font-ibm-mono), 'IBM Plex Mono', monospace;
+  --font-serif: var(--font-crimson), 'Crimson Pro', serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+  --color-ruby: var(--ruby);
+  --color-ruby-hover: var(--ruby-hover);
+  --color-vellum: var(--vellum);
+  --color-cast-iron: var(--cast-iron);
+  --color-drafting-grey: var(--drafting-grey);
+  --color-steel: var(--steel);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
