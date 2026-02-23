@@ -24,7 +24,25 @@ const footerLinks = {
   ],
 }
 
-export function Footer() {
+interface FooterProps {
+  siteSettings?: {
+    companyName?: string
+    footerDescription?: string
+    certifications?: string[]
+    phone?: string[]
+    website?: string
+  }
+}
+
+export function Footer({ siteSettings }: FooterProps) {
+  const companyName = siteSettings?.companyName || "Brimatco"
+  const description =
+    siteSettings?.footerDescription ||
+    "Precision gear-driven tooling solutions for aerospace, automotive, and industrial applications. Engineered in Cheshire, CT since 1973."
+  const certifications = siteSettings?.certifications || ["ISO 9001", "AS9100D", "ITAR"]
+  const phone = siteSettings?.phone?.[0] || "(203) 272-0044"
+  const website = siteSettings?.website || "www.brimatco.com"
+
   return (
     <footer className="bg-cast-iron">
       {/* Trust bar */}
@@ -38,14 +56,14 @@ export function Footer() {
           </div>
           <div className="flex items-center gap-3">
             <PhoneIcon className="h-4 w-4 text-ruby" strokeWidth={1.5} />
-            <a href="tel:+12032720044" className="font-mono text-xs tracking-wider text-vellum/60 transition-colors hover:text-ruby">
-              (203) 272-0044 / 272-1859
+            <a href={`tel:${phone.replace(/[^+\d]/g, "")}`} className="font-mono text-xs tracking-wider text-vellum/60 transition-colors hover:text-ruby">
+              {phone}
             </a>
           </div>
           <div className="flex items-center gap-3">
             <Mail className="h-4 w-4 text-ruby" strokeWidth={1.5} />
             <span className="font-mono text-xs tracking-wider text-vellum/60">
-              www.brimatco.com
+              {website}
             </span>
           </div>
         </div>
@@ -58,27 +76,24 @@ export function Footer() {
           <div className="lg:w-1/3">
             <Image
               src="/images/brimatco-logo.png"
-              alt="Brimatco"
+              alt={companyName}
               width={220}
               height={64}
               style={{ width: "auto", height: "auto" }}
               className="h-14"
             />
             <p className="mt-4 max-w-xs font-serif text-sm leading-relaxed text-vellum/50">
-              Precision gear-driven tooling solutions for aerospace, automotive,
-              and industrial applications. Engineered in Cheshire, CT since
-              1973.
+              {description}
             </p>
             <div className="mt-6 flex gap-4">
-              <span className="border border-vellum/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-vellum/40">
-                ISO 9001
-              </span>
-              <span className="border border-vellum/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-vellum/40">
-                AS9100D
-              </span>
-              <span className="border border-vellum/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-vellum/40">
-                ITAR
-              </span>
+              {certifications.map((cert) => (
+                <span
+                  key={cert}
+                  className="border border-vellum/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-vellum/40"
+                >
+                  {cert}
+                </span>
+              ))}
             </div>
           </div>
 

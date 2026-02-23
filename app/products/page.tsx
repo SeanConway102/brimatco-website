@@ -1,6 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { products } from "@/lib/product-data"
+import { sanityFetch } from "@/lib/sanity"
+import { allProductsQuery } from "@/lib/queries"
 import { ArrowRight, Gauge } from "lucide-react"
 import Link from "next/link"
 
@@ -10,7 +11,9 @@ export const metadata = {
     "Browse Brimatco's full line of production-grade gear-driven quick connect wrench blades: QCL, QCM, QCH, QCEH, QCEH-SP, and Tube Nut series.",
 }
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const { data: products } = await sanityFetch({ query: allProductsQuery })
+
   return (
     <main>
       <Header />
@@ -41,8 +44,8 @@ export default function ProductsPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => (
               <Link
-                key={product.slug}
-                href={`/products/${product.slug}`}
+                key={product.slug.current}
+                href={`/products/${product.slug.current}`}
                 className="group flex flex-col border border-border bg-card transition-all hover:border-ruby/40 hover:shadow-lg"
               >
                 {/* Model badge header */}

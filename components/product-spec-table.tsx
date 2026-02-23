@@ -1,27 +1,52 @@
-import type { SpecRow, SpecRowInchLbs, TubeNutSpecRow } from "@/lib/product-data"
 import { ImageLightbox } from "@/components/image-lightbox"
+import { urlFor } from "@/lib/sanity"
+
+interface SpecRow {
+  socketSizes: string
+  idlerGears: number[]
+  sqDrive: string
+  torqueValues: number[]
+  torqueNM: number[]
+  dimA: number
+  dimR: number
+}
+
+interface TubeNutSpecRow {
+  modelStyle: string
+  diagramImage?: any
+  socketSizes: string
+  sqDrive: string
+  maxTorqueFtLbs: number
+  maxTorqueNM: number
+  dimA: number
+  dimR: number
+  dimC: number
+  dimD: number
+}
 
 interface ProductSpecTableProps {
   product: {
-    slug: string
+    slug: { current: string }
     model: string
-    torqueUnit: "FOOT/LBS" | "INCH/LBS"
-    specs: SpecRow[] | SpecRowInchLbs[]
+    torqueUnit: string
+    specs: SpecRow[]
     tubeNutSpecs?: TubeNutSpecRow[]
   }
 }
 
 export function ProductSpecTable({ product }: ProductSpecTableProps) {
+  const slug = typeof product.slug === "string" ? product.slug : product.slug?.current
+
   // Tube Nut has a different table structure
-  if (product.slug === "tube-nut" && product.tubeNutSpecs) {
+  if (slug === "tube-nut" && product.tubeNutSpecs && product.tubeNutSpecs.length > 0) {
     return <TubeNutTable specs={product.tubeNutSpecs} />
   }
 
   if (product.torqueUnit === "INCH/LBS") {
-    return <InchLbsTable specs={product.specs as SpecRowInchLbs[]} model={product.model} />
+    return <InchLbsTable specs={product.specs} model={product.model} />
   }
 
-  return <FootLbsTable specs={product.specs as SpecRow[]} model={product.model} />
+  return <FootLbsTable specs={product.specs} model={product.model} />
 }
 
 function FootLbsTable({ specs, model }: { specs: SpecRow[]; model: string }) {
@@ -105,7 +130,7 @@ function FootLbsTable({ specs, model }: { specs: SpecRow[]; model: string }) {
                   </td>
                 )}
                 <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
-                  {spec.torqueFtLbs[gearIdx]}
+                  {spec.torqueValues?.[gearIdx] ?? "—"}
                 </td>
                 <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
                   {spec.torqueNM[gearIdx]}
@@ -136,7 +161,7 @@ function FootLbsTable({ specs, model }: { specs: SpecRow[]; model: string }) {
   )
 }
 
-function InchLbsTable({ specs, model }: { specs: SpecRowInchLbs[]; model: string }) {
+function InchLbsTable({ specs, model }: { specs: SpecRow[]; model: string }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
@@ -214,7 +239,7 @@ function InchLbsTable({ specs, model }: { specs: SpecRowInchLbs[]; model: string
                   </td>
                 )}
                 <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
-                  {spec.torqueInLbs[gearIdx]}
+                  {spec.torqueValues?.[gearIdx] ?? "—"}
                 </td>
                 <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
                   {spec.torqueNM[gearIdx]}
@@ -247,95 +272,103 @@ function InchLbsTable({ specs, model }: { specs: SpecRowInchLbs[]; model: string
 function TubeNutTable({ specs }: { specs: TubeNutSpecRow[] }) {
   return (
     <div className="flex flex-col gap-8">
-      {specs.map((spec, idx) => (
-        <div key={idx} className="border border-border">
-          <div className="bg-cast-iron px-4 py-3">
-            <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-vellum">
-              {spec.modelStyle}
-            </h3>
-          </div>
-          {spec.diagramImage && (
-            <div className="border-b border-border bg-card p-6">
-              <ImageLightbox
-                src={spec.diagramImage}
-                alt={`${spec.modelStyle} technical diagram showing adapter plate, wrench blade side view, and bottom view with key dimensions`}
-                width={540}
-                height={400}
-                className="mx-auto w-full max-w-sm"
-              />
+      {specs.map((spec, idx) => {
+        const diagramUrl = spec.diagramImage
+          ? (typeof spec.diagramImage === "string"
+              ? spec.diagramImage
+              : urlFor(spec.diagramImage).url())
+          : null
+
+        return (
+          <div key={idx} className="border border-border">
+            <div className="bg-cast-iron px-4 py-3">
+              <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-vellum">
+                {spec.modelStyle}
+              </h3>
             </div>
-          )}
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-muted">
-                  <th className="border border-border px-3 py-2 text-left font-sans text-xs font-bold uppercase tracking-wider text-foreground">
-                    Socket Sizes
-                  </th>
-                  <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
-                    Sq. Dr.
-                  </th>
-                  <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
-                    Max Torque
-                    <br />
-                    <span className="text-[10px] font-normal text-drafting-grey">FT/LBS</span>
-                  </th>
-                  <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
-                    Max Torque
-                    <br />
-                    <span className="text-[10px] font-normal text-drafting-grey">N.M.</span>
-                  </th>
-                  <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
-                    {'"A"'}
-                  </th>
-                  <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
-                    {'"R"'}
-                  </th>
-                  <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
-                    {'"C"'}
-                  </th>
-                  <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
-                    {'"D"'}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="bg-card">
-                  <td className="border border-border px-3 py-2 font-mono text-xs text-foreground">
-                    {spec.socketSizes.split("\n").map((line, i) => (
-                      <span key={i}>
-                        {line}
-                        {i < spec.socketSizes.split("\n").length - 1 && <br />}
-                      </span>
-                    ))}
-                  </td>
-                  <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
-                    {spec.sqDrive}
-                  </td>
-                  <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
-                    {spec.maxTorqueFtLbs}
-                  </td>
-                  <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
-                    {spec.maxTorqueNM}
-                  </td>
-                  <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
-                    {spec.dimA.toFixed(3)}
-                  </td>
-                  <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
-                    {spec.dimR.toFixed(3)}
-                  </td>
-                  <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
-                    {spec.dimC.toFixed(3)}
-                  </td>
-                  <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
-                    {spec.dimD.toFixed(3)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            {diagramUrl && (
+              <div className="border-b border-border bg-card p-6">
+                <ImageLightbox
+                  src={diagramUrl}
+                  alt={`${spec.modelStyle} technical diagram showing adapter plate, wrench blade side view, and bottom view with key dimensions`}
+                  width={540}
+                  height={400}
+                  className="mx-auto w-full max-w-sm"
+                />
+              </div>
+            )}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-muted">
+                    <th className="border border-border px-3 py-2 text-left font-sans text-xs font-bold uppercase tracking-wider text-foreground">
+                      Socket Sizes
+                    </th>
+                    <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
+                      Sq. Dr.
+                    </th>
+                    <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
+                      Max Torque
+                      <br />
+                      <span className="text-[10px] font-normal text-drafting-grey">FT/LBS</span>
+                    </th>
+                    <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
+                      Max Torque
+                      <br />
+                      <span className="text-[10px] font-normal text-drafting-grey">N.M.</span>
+                    </th>
+                    <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
+                      {'"A"'}
+                    </th>
+                    <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
+                      {'"R"'}
+                    </th>
+                    <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
+                      {'"C"'}
+                    </th>
+                    <th className="border border-border px-3 py-2 text-center font-sans text-xs font-bold uppercase tracking-wider text-foreground">
+                      {'"D"'}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-card">
+                    <td className="border border-border px-3 py-2 font-mono text-xs text-foreground">
+                      {spec.socketSizes.split("\n").map((line, i) => (
+                        <span key={i}>
+                          {line}
+                          {i < spec.socketSizes.split("\n").length - 1 && <br />}
+                        </span>
+                      ))}
+                    </td>
+                    <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
+                      {spec.sqDrive}
+                    </td>
+                    <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
+                      {spec.maxTorqueFtLbs}
+                    </td>
+                    <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
+                      {spec.maxTorqueNM}
+                    </td>
+                    <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
+                      {spec.dimA.toFixed(3)}
+                    </td>
+                    <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
+                      {spec.dimR.toFixed(3)}
+                    </td>
+                    <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
+                      {spec.dimC.toFixed(3)}
+                    </td>
+                    <td className="border border-border px-3 py-2 text-center font-mono text-xs text-foreground">
+                      {spec.dimD.toFixed(3)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

@@ -1,7 +1,14 @@
 import Image from "next/image"
 import { Upload, FileText, Phone } from "lucide-react"
 
-export function CustomEngineering() {
+interface CustomEngineeringProps {
+  data?: {
+    ctaHeading?: string
+    ctaDescription?: string
+  }
+}
+
+export function CustomEngineering({ data }: CustomEngineeringProps) {
   return (
     <section
       id="custom-engineering"
@@ -25,15 +32,17 @@ export function CustomEngineering() {
               Custom Solutions
             </span>
             <h2 className="mt-3 font-sans text-3xl font-bold uppercase tracking-tight text-vellum md:text-4xl lg:text-5xl">
-              The Impossible Reach?
-              <br />
-              <span className="text-ruby">We Solve It.</span>
+              {data?.ctaHeading || (
+                <>
+                  The Impossible Reach?
+                  <br />
+                  <span className="text-ruby">We Solve It.</span>
+                </>
+              )}
             </h2>
             <p className="mt-6 max-w-lg font-serif text-base leading-relaxed text-vellum/70">
-              Send us your blueprint, your clearance problem, your &ldquo;impossible&rdquo;
-              fastener access challenge. Our engineers in Cheshire, CT will
-              design a custom gear-driven solution with a unique B-Series part
-              number — re-orderable for life.
+              {data?.ctaDescription ||
+                "Send us your blueprint, your clearance problem, your \u201cimpossible\u201d fastener access challenge. Our engineers in Cheshire, CT will design a custom gear-driven solution with a unique B-Series part number — re-orderable for life."}
             </p>
 
             <div className="mt-10 flex flex-col gap-6">

@@ -1,6 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { internalDrives, externalDrives } from "@/lib/product-data"
+import { sanityFetch, urlFor } from "@/lib/sanity"
+import { allDriveTypesQuery } from "@/lib/queries"
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
@@ -12,7 +13,11 @@ export const metadata = {
     "Explore Brimatco's full range of internal and external drive options, plus gear-driven blind drives for inaccessible fastening locations.",
 }
 
-export default function DrivesPage() {
+export default async function DrivesPage() {
+  const { data: driveTypes } = await sanityFetch({ query: allDriveTypesQuery })
+  const internalDrives = driveTypes.filter((d: any) => d.category === "internal")
+  const externalDrives = driveTypes.filter((d: any) => d.category === "external")
+
   return (
     <main>
       <Header />
@@ -64,14 +69,14 @@ export default function DrivesPage() {
             configurations to match your specific fastener requirements.
           </p>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {internalDrives.map((drive) => (
+            {internalDrives.map((drive: any) => (
               <div
                 key={drive.name}
                 className="flex flex-col border border-border bg-card"
               >
                 <div className="flex flex-1 items-center justify-center p-4">
                   <ImageLightbox
-                    src={drive.image}
+                    src={urlFor(drive.image).url()}
                     alt={`${drive.name} internal drive diagram`}
                     width={200}
                     height={200}
@@ -106,14 +111,14 @@ export default function DrivesPage() {
             screws, and rotary tool applications.
           </p>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {externalDrives.map((drive) => (
+            {externalDrives.map((drive: any) => (
               <div
                 key={drive.name}
                 className="flex flex-col border border-border bg-card"
               >
                 <div className="flex flex-1 items-center justify-center p-4">
                   <ImageLightbox
-                    src={drive.image}
+                    src={urlFor(drive.image).url()}
                     alt={`${drive.name} external drive diagram`}
                     width={200}
                     height={200}

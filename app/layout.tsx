@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { Barlow_Condensed, IBM_Plex_Mono, Crimson_Pro } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SanityLive } from '@/lib/sanity'
+import { VisualEditing } from 'next-sanity/visual-editing'
+import { draftMode } from 'next/headers'
 import './globals.css'
 
 const barlowCondensed = Barlow_Condensed({
@@ -52,17 +55,21 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const { isEnabled: isDraftMode } = await draftMode()
+
   return (
     <html lang="en">
       <body
         className={`${barlowCondensed.variable} ${ibmPlexMono.variable} ${crimsonPro.variable} font-sans antialiased`}
       >
         {children}
+        <SanityLive />
+        {isDraftMode && <VisualEditing />}
         <Analytics />
       </body>
     </html>

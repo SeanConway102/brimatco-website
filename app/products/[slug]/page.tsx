@@ -1,6 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { products } from "@/lib/product-data"
+import { client, sanityFetch, urlFor } from "@/lib/sanity"
+import { productBySlugQuery, allProductsQuery } from "@/lib/queries"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react"
@@ -8,8 +9,11 @@ import { ProductSpecTable } from "@/components/product-spec-table"
 import { SpecialOptions } from "@/components/special-options"
 import { ImageLightbox } from "@/components/image-lightbox"
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }))
+export async function generateStaticParams() {
+  const products = await client.fetch(allProductsQuery)
+  return (products ?? []).map((p: { slug: { current: string } }) => ({
+    slug: p.slug.current,
+  }))
 }
 
 export async function generateMetadata({
@@ -18,7 +22,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const product = products.find((p) => p.slug === slug)
+  const { data: product } = await sanityFetch({
+    query: productBySlugQuery,
+    params: { slug },
+  })
   if (!product) return { title: "Product Not Found" }
   return {
     title: `${product.model} - ${product.name} | Brimatco`,
@@ -32,13 +39,21 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const product = products.find((p) => p.slug === slug)
+  const { data: product } = await sanityFetch({
+    query: productBySlugQuery,
+    params: { slug },
+  })
   if (!product) notFound()
 
-  const currentIndex = products.findIndex((p) => p.slug === slug)
-  const prevProduct = currentIndex > 0 ? products[currentIndex - 1] : null
+  const { data: allProducts } = await sanityFetch({ query: allProductsQuery })
+  const currentIndex = (allProducts ?? []).findIndex(
+    (p: { slug: { current: string } }) => p.slug.current === slug
+  )
+  const prevProduct = currentIndex > 0 ? allProducts[currentIndex - 1] : null
   const nextProduct =
-    currentIndex < products.length - 1 ? products[currentIndex + 1] : null
+    currentIndex < allProducts.length - 1
+      ? allProducts[currentIndex + 1]
+      : null
 
   return (
     <main>
@@ -107,31 +122,33 @@ export default async function ProductDetailPage({
                     Sample: <strong>{product.partNumberExample}</strong>
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
-                    {product.partNumberBreakdown.map((part, i) => (
-                      <div
-                        key={i}
-                        className="border border-border bg-card px-3 py-2"
-                      >
-                        <span className="block font-mono text-[10px] uppercase tracking-wider text-drafting-grey">
-                          {part.label}
-                        </span>
-                        <span className="font-sans text-sm font-bold text-foreground">
-                          {part.value}
-                        </span>
-                      </div>
-                    ))}
+                    {product.partNumberBreakdown.map(
+                      (part: { label: string; value: string }, i: number) => (
+                        <div
+                          key={i}
+                          className="border border-border bg-card px-3 py-2"
+                        >
+                          <span className="block font-mono text-[10px] uppercase tracking-wider text-drafting-grey">
+                            {part.label}
+                          </span>
+                          <span className="font-sans text-sm font-bold text-foreground">
+                            {part.value}
+                          </span>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               )}
 
               {/* Technical Diagram */}
-              {"diagramImage" in product && product.diagramImage && (
+              {product.diagramImage && (
                 <div className="mb-10 border border-border bg-card p-6">
                   <h3 className="mb-4 font-sans text-sm font-bold uppercase tracking-wider text-foreground">
                     Technical Drawing
                   </h3>
                   <ImageLightbox
-                    src={product.diagramImage as string}
+                    src={urlFor(product.diagramImage).url()}
                     alt={`${product.model} technical diagram showing adapter plate, wrench blade side view, and bottom view with key dimensions`}
                     width={540}
                     height={540}
@@ -197,7 +214,7 @@ export default async function ProductDetailPage({
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           {prevProduct ? (
             <Link
-              href={`/products/${prevProduct.slug}`}
+              href={`/products/${prevProduct.slug.current}`}
               className="flex items-center gap-2 text-drafting-grey transition-colors hover:text-ruby"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -221,7 +238,7 @@ export default async function ProductDetailPage({
           </Link>
           {nextProduct ? (
             <Link
-              href={`/products/${nextProduct.slug}`}
+              href={`/products/${nextProduct.slug.current}`}
               className="flex items-center gap-2 text-right text-drafting-grey transition-colors hover:text-ruby"
             >
               <div>

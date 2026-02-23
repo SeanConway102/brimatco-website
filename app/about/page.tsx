@@ -3,6 +3,8 @@ import { Footer } from "@/components/footer"
 import Link from "next/link"
 import { Phone, Mail, MapPin, ChevronRight } from "lucide-react"
 import { ImageLightbox } from "@/components/image-lightbox"
+import { sanityFetch, urlFor } from "@/lib/sanity"
+import { aboutPageQuery, siteSettingsQuery } from "@/lib/queries"
 
 export const metadata = {
   title: "About Brimatco | Quality & Service Since 1973",
@@ -10,7 +12,12 @@ export const metadata = {
     "Learn about Brimatco Corporation's commitment to quality, our patented Quick-Connect technology, testing & service, and our Cheshire, CT manufacturing facility.",
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const [{ data: about }, { data: settings }] = await Promise.all([
+    sanityFetch({ query: aboutPageQuery }),
+    sanityFetch({ query: siteSettingsQuery }),
+  ])
+
   return (
     <main>
       <Header />
@@ -19,14 +26,13 @@ export default function AboutPage() {
       <section className="bg-cast-iron px-6 py-16 lg:px-12 lg:py-24">
         <div className="mx-auto max-w-7xl">
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-ruby">
-            About Brimatco
+            {about.heroTagline}
           </p>
           <h1 className="mt-4 font-sans text-4xl font-bold uppercase tracking-tight text-vellum md:text-6xl">
-            Brimatco Quality
+            {about.heroHeading}
           </h1>
           <p className="mt-6 max-w-2xl font-serif text-lg leading-relaxed text-vellum/60">
-            Production-grade gear-driven wrenches engineered and manufactured in
-            Cheshire, Connecticut since 1973. Patent No. 4171651 & D255090.
+            {about.heroDescription}
           </p>
         </div>
       </section>
@@ -37,28 +43,13 @@ export default function AboutPage() {
           <div className="max-w-4xl">
             <div className="border-l-4 border-ruby pl-6">
               <h2 className="font-sans text-3xl font-extrabold uppercase tracking-tight text-foreground md:text-4xl">
-                The Best Choice
+                {about.bestChoiceHeading}
               </h2>
             </div>
             <div className="mt-10 flex flex-col gap-6 font-serif text-lg leading-relaxed text-steel md:text-xl">
-              <p>
-                There is substantial proof that gear drive is the most
-                consistent, durable and precise method of torque delivery
-                employed and is widely preferred over other methods. To insure
-                the highest quality and product control, we design and
-                manufacture all of our own components in-house.
-              </p>
-              <p>
-                Our years of experience and metallurgical expertise allow us
-                to select the best materials for any given application. Our
-                design skills result in sophisticated yet uncomplicated
-                components. As an example, all Brimatco tool housings utilize
-                uni-body design.
-              </p>
-              <p>
-                When you buy a Brimatco tool, you invest in a tool that lasts
-                longer, performs better and is extraordinarily cost-efficient.
-              </p>
+              {about.bestChoiceParagraphs?.map((paragraph: string, index: number) => (
+                <p key={index}>{paragraph}</p>
+              ))}
             </div>
           </div>
         </div>
@@ -72,14 +63,11 @@ export default function AboutPage() {
             <div>
               <div className="border-l-4 border-ruby pl-6">
                 <h2 className="font-sans text-3xl font-extrabold uppercase tracking-tight text-foreground md:text-4xl">
-                  Quick - Connect
+                  {about.quickConnectHeading}
                 </h2>
               </div>
               <p className="mt-8 font-serif text-lg leading-relaxed text-steel md:text-xl">
-                Brimatco blades are compatible with virtually all air or
-                electric tools. Our patented Quick-Connect feature allows you to
-                carry out more operations per work station by greatly
-                simplifying wrench changing.
+                {about.quickConnectBody}
               </p>
             </div>
 
@@ -87,14 +75,11 @@ export default function AboutPage() {
             <div>
               <div className="border-l-4 border-ruby pl-6">
                 <h2 className="font-sans text-3xl font-extrabold uppercase tracking-tight text-foreground md:text-4xl">
-                  Testing & Service
+                  {about.testingHeading}
                 </h2>
               </div>
               <p className="mt-8 font-serif text-lg leading-relaxed text-steel md:text-xl">
-                All Brimatco wrenches are functionally tested after assembly.
-                Our materials and design assure extended service life. We
-                provide complete in-house service in the event that it is needed
-                and can advise customers of up-grades or new models.
+                {about.testingBody}
               </p>
             </div>
           </div>
@@ -127,14 +112,7 @@ export default function AboutPage() {
                 </p>
               </div>
               <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {[
-                  "Angle Nutrunners",
-                  "Screwdrivers",
-                  "Stall Bar Nutrunners",
-                  "Fixtured Nutrunners",
-                  "Drills",
-                  "Pulse Tools",
-                ].map((tool) => (
+                {about.adaptabilityTools?.map((tool: string) => (
                   <div
                     key={tool}
                     className="border border-border bg-card px-4 py-3"
@@ -154,13 +132,23 @@ export default function AboutPage() {
                 <h3 className="mb-3 font-sans text-xs font-bold uppercase tracking-wider text-drafting-grey">
                   Power Source Compatibility
                 </h3>
-                <ImageLightbox
-                  src="/catalogue/flexible-adaptability.png"
-                  alt="Brimatco wrench blade adaptability to various pneumatic and DC tools including inline, pistol grip, angle nutrunners, and pulse tools"
-                  width={500}
-                  height={700}
-                  className="mx-auto w-full max-w-sm"
-                />
+                {about.adaptabilityImage ? (
+                  <ImageLightbox
+                    src={urlFor(about.adaptabilityImage).url()}
+                    alt="Brimatco wrench blade adaptability to various pneumatic and DC tools including inline, pistol grip, angle nutrunners, and pulse tools"
+                    width={500}
+                    height={700}
+                    className="mx-auto w-full max-w-sm"
+                  />
+                ) : (
+                  <ImageLightbox
+                    src="/catalogue/flexible-adaptability.png"
+                    alt="Brimatco wrench blade adaptability to various pneumatic and DC tools including inline, pistol grip, angle nutrunners, and pulse tools"
+                    width={500}
+                    height={700}
+                    className="mx-auto w-full max-w-sm"
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -177,20 +165,16 @@ export default function AboutPage() {
             Custom Solutions
           </p>
           <h2 className="mt-4 font-sans text-3xl font-bold uppercase tracking-tight text-vellum md:text-4xl">
-            {'"B" Series Wrench Blades'}
+            {about.bSeriesHeading}
           </h2>
-          <p className="mt-6 max-w-2xl font-serif text-base leading-relaxed text-vellum/60">
-            Total custom designs tailored to your unique application
-            requirements. Over the years, we have maintained a policy of
-            expanding our product line as new markets occur and new wrenches are
-            continually being introduced. We cannot catalog every variation so
-            we hope you will accept our invitation to call with your particular
-            specifications.
-          </p>
-          <p className="mt-4 max-w-2xl font-serif text-base leading-relaxed text-vellum/60">
-            Even if you {"don't"} see an appropriate tool illustrated in these
-            pages, chances are good the solution to your problem already exists.
-          </p>
+          {(Array.isArray(about.bSeriesBody) ? about.bSeriesBody : [about.bSeriesBody]).filter(Boolean).map((paragraph: string, index: number) => (
+            <p
+              key={index}
+              className={`${index === 0 ? "mt-6" : "mt-4"} max-w-2xl font-serif text-base leading-relaxed text-vellum/60`}
+            >
+              {paragraph}
+            </p>
+          ))}
           <div className="mt-8">
             <Link
               href="/about#contact"
@@ -217,46 +201,51 @@ export default function AboutPage() {
                 </h2>
               </div>
               <p className="mt-6 font-serif text-base leading-relaxed text-steel">
-                For questions on applications, deliveries, costs or technical
-                data. {"We're"} often able to suggest solutions to problems that
-                you may have thought you had to live with. We love challenges.
-                The best way to find out how much help we can be is to just pick
-                up the phone.
+                {about.contactBody}
               </p>
             </div>
             <div className="lg:w-96">
               <div className="border border-border bg-card p-8">
                 <h3 className="font-sans text-lg font-bold uppercase tracking-wider text-foreground">
-                  Brimatco Corporation
+                  {settings.companyName}
                 </h3>
                 <div className="mt-6 flex flex-col gap-4">
                   <div className="flex items-start gap-3">
                     <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ruby" />
                     <div className="font-serif text-sm leading-relaxed text-steel">
-                      <p>P.O. Box 88</p>
-                      <p>1486 Highland Avenue</p>
-                      <p>Cheshire, CT 06410</p>
+                      <p>{settings.address?.line1}</p>
+                      <p>{settings.address?.line2}</p>
+                      <p>{settings.address?.city}, {settings.address?.state} {settings.address?.zip}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone className="h-4 w-4 shrink-0 text-ruby" />
                     <div className="font-mono text-sm text-foreground">
-                      <a href="tel:+12032720044" className="transition-colors hover:text-ruby">(203) 272-0044</a>
-                      <p><a href="tel:+12032721859" className="transition-colors hover:text-ruby">272-1859</a> or <a href="tel:+12032721850" className="transition-colors hover:text-ruby">272-1850</a></p>
+                      {settings.phone?.map((num: string, index: number) => (
+                        <p key={index}>
+                          <a href={`tel:${num.replace(/[^+\d]/g, "")}`} className="transition-colors hover:text-ruby">
+                            {num}
+                          </a>
+                        </p>
+                      ))}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 shrink-0 text-ruby" />
-                    <p className="font-mono text-sm text-foreground">
-                      Fax: (203) 272-2256
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 shrink-0 text-ruby" />
-                    <p className="font-mono text-sm text-foreground">
-                      www.brimatco.com
-                    </p>
-                  </div>
+                  {settings.fax && (
+                    <div className="flex items-center gap-3">
+                      <Phone className="h-4 w-4 shrink-0 text-ruby" />
+                      <p className="font-mono text-sm text-foreground">
+                        Fax: {settings.fax}
+                      </p>
+                    </div>
+                  )}
+                  {settings.website && (
+                    <div className="flex items-center gap-3">
+                      <Mail className="h-4 w-4 shrink-0 text-ruby" />
+                      <p className="font-mono text-sm text-foreground">
+                        {settings.website}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
