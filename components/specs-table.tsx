@@ -1,61 +1,23 @@
-const specRows = [
-  {
-    series: "QCL",
-    duty: "Light",
-    torqueNm: "16",
-    torqueInLbs: "140 in-lbs",
-    housing: "Uni-Body",
-    heatTreat: "Case Hardened",
-    compatibility: "IR / AC / CP",
-  },
-  {
-    series: "QCM",
-    duty: "Medium",
-    torqueNm: "26",
-    torqueInLbs: "19 ft-lbs",
-    housing: "Uni-Body",
-    heatTreat: "Through Hardened",
-    compatibility: "IR / AC / CP",
-  },
-  {
-    series: "QCH",
-    duty: "Heavy",
-    torqueNm: "31",
-    torqueInLbs: "23 ft-lbs",
-    housing: "Uni-Body",
-    heatTreat: "Through Hardened",
-    compatibility: "IR / AC / CP",
-  },
-  {
-    series: "QCEH",
-    duty: "Extra Heavy",
-    torqueNm: "45",
-    torqueInLbs: "33 ft-lbs",
-    housing: "Uni-Body",
-    heatTreat: "Carburized",
-    compatibility: "IR / AC / CP",
-  },
-  {
-    series: "QCEH-SP",
-    duty: "Special",
-    torqueNm: "100",
-    torqueInLbs: "74 ft-lbs",
-    housing: "Uni-Body",
-    heatTreat: "Custom",
-    compatibility: "Universal",
-  },
-  {
-    series: "B578/B529",
-    duty: "Tube Nut",
-    torqueNm: "83",
-    torqueInLbs: "61 ft-lbs",
-    housing: "Uni-Body",
-    heatTreat: "Case Hardened",
-    compatibility: "Universal",
-  },
-]
+interface Product {
+  _id: string
+  model: string
+  homepageSummary?: {
+    duty?: string
+    torqueNm?: string
+    torqueImperial?: string
+    housing?: string
+    heatTreat?: string
+    compatibility?: string
+  }
+}
 
-export function SpecsTable() {
+interface SpecsTableProps {
+  products: Product[]
+}
+
+export function SpecsTable({ products }: SpecsTableProps) {
+  const items = products || []
+
   return (
     <section className="bg-vellum py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
@@ -91,33 +53,33 @@ export function SpecsTable() {
               </tr>
             </thead>
             <tbody>
-              {specRows.map((row, index) => (
+              {items.map((product, index) => (
                 <tr
-                  key={row.series}
+                  key={product._id}
                   className={`border-b border-border transition-colors hover:bg-muted/60 ${
                     index % 2 === 0 ? "bg-vellum" : "bg-muted/30"
                   }`}
                 >
                   <td className="px-4 py-3 font-sans text-sm font-bold uppercase tracking-wider text-cast-iron">
-                    {row.series}
+                    {product.model}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-steel">
-                    {row.duty}
+                    {product.homepageSummary?.duty || "—"}
                   </td>
                   <td className="px-4 py-3 font-mono text-sm font-semibold text-ruby">
-                    {row.torqueNm}
+                    {product.homepageSummary?.torqueNm || "—"}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-steel">
-                    {row.torqueInLbs}
+                    {product.homepageSummary?.torqueImperial || "—"}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-steel">
-                    {row.housing}
+                    {product.homepageSummary?.housing || "Uni-Body"}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-steel">
-                    {row.heatTreat}
+                    {product.homepageSummary?.heatTreat || "—"}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-drafting-grey">
-                    {row.compatibility}
+                    {product.homepageSummary?.compatibility || "—"}
                   </td>
                 </tr>
               ))}

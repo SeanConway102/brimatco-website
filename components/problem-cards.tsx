@@ -1,16 +1,25 @@
 import { Crosshair, Shield, Cog } from "lucide-react"
 
-const problems = [
+const iconMap: Record<string, any> = {
+  crosshair: Crosshair,
+  Crosshair: Crosshair,
+  shield: Shield,
+  Shield: Shield,
+  cog: Cog,
+  Cog: Cog,
+}
+
+const defaultProblems = [
   {
-    icon: Crosshair,
+    icon: "crosshair",
     title: "THE CLEARANCE PROBLEM",
     description:
       "Standard tools can't reach fasteners in confined aerospace assemblies. Our gear-driven offset design accesses spaces where straight-line tools fail.",
-    stat: "0.5\"",
+    stat: '0.5"',
     statLabel: "minimum clearance reach",
   },
   {
-    icon: Shield,
+    icon: "shield",
     title: "THE DURABILITY GAP",
     description:
       "Cast housings crack under repeated high-torque cycles. Brimatco's uni-body design machines each housing from a single solid block — zero weld points, zero failure seams.",
@@ -18,7 +27,7 @@ const problems = [
     statLabel: "uni-body machined",
   },
   {
-    icon: Cog,
+    icon: "cog",
     title: "SEAMLESS INTEGRATION",
     description:
       "Universal compatibility with Ingersoll Rand, Atlas Copco, Chicago Pneumatic, and all major pneumatic platforms. Drop-in, zero-downtime deployment.",
@@ -27,7 +36,19 @@ const problems = [
   },
 ]
 
-export function ProblemCards() {
+interface ProblemCardsProps {
+  cards?: Array<{
+    icon?: string
+    title?: string
+    description?: string
+    stat?: string
+    statLabel?: string
+  }>
+}
+
+export function ProblemCards({ cards }: ProblemCardsProps) {
+  const problems = cards && cards.length > 0 ? cards : defaultProblems
+
   return (
     <section className="bg-drafting-grey py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
@@ -41,30 +62,33 @@ export function ProblemCards() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          {problems.map((problem) => (
-            <div
-              key={problem.title}
-              className="group flex flex-col justify-between border border-vellum/10 bg-cast-iron/40 p-8 transition-all hover:border-ruby/40 hover:bg-cast-iron/60"
-            >
-              <div>
-                <problem.icon className="mb-6 h-8 w-8 text-ruby" strokeWidth={1.5} />
-                <h3 className="mb-4 font-sans text-lg font-bold uppercase tracking-wider text-vellum">
-                  {problem.title}
-                </h3>
-                <p className="font-serif text-sm leading-relaxed text-vellum/70">
-                  {problem.description}
-                </p>
+          {problems.map((problem, idx) => {
+            const IconComponent = iconMap[problem.icon || ""] || Cog
+            return (
+              <div
+                key={problem.title || idx}
+                className="group flex flex-col justify-between border border-vellum/10 bg-cast-iron/40 p-8 transition-all hover:border-ruby/40 hover:bg-cast-iron/60"
+              >
+                <div>
+                  <IconComponent className="mb-6 h-8 w-8 text-ruby" strokeWidth={1.5} />
+                  <h3 className="mb-4 font-sans text-lg font-bold uppercase tracking-wider text-vellum">
+                    {problem.title}
+                  </h3>
+                  <p className="font-serif text-sm leading-relaxed text-vellum/70">
+                    {problem.description}
+                  </p>
+                </div>
+                <div className="mt-8 border-t border-vellum/10 pt-6">
+                  <span className="font-mono text-3xl font-semibold text-ruby">
+                    {problem.stat}
+                  </span>
+                  <span className="ml-2 font-mono text-xs uppercase tracking-wider text-vellum/50">
+                    {problem.statLabel}
+                  </span>
+                </div>
               </div>
-              <div className="mt-8 border-t border-vellum/10 pt-6">
-                <span className="font-mono text-3xl font-semibold text-ruby">
-                  {problem.stat}
-                </span>
-                <span className="ml-2 font-mono text-xs uppercase tracking-wider text-vellum/50">
-                  {problem.statLabel}
-                </span>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>

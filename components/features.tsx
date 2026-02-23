@@ -1,28 +1,52 @@
 import Image from "next/image"
 import { Archive, Flame, Wrench } from "lucide-react"
+import { urlFor } from "@/lib/sanity"
 
-const features = [
+const iconMap: Record<string, any> = {
+  wrench: Wrench,
+  Wrench: Wrench,
+  archive: Archive,
+  Archive: Archive,
+  flame: Flame,
+  Flame: Flame,
+}
+
+const defaultFeatures = [
   {
-    icon: Wrench,
+    icon: "wrench",
     title: "Uni-Body Design",
     description:
       "Every housing is precision-machined from a solid billet of hardened steel. No casting, no welding, no weak points. This is the foundation of Brimatco's legendary durability — a single, seamless structure engineered for decades of service.",
   },
   {
-    icon: Archive,
+    icon: "archive",
     title: "The B-Series Archive",
     description:
       "Every custom tool Brimatco builds is assigned a unique B-Series part number and archived for life. Need an exact replacement 15 years from now? One call, one part number, delivered.",
   },
   {
-    icon: Flame,
+    icon: "flame",
     title: "In-House Heat Treating",
     description:
       "Our metallurgists control the entire hardening process — carburizing, quenching, tempering — under one roof. No outsourced guesswork. Precise Rockwell hardness for every application.",
   },
 ]
 
-export function Features() {
+interface FeaturesProps {
+  data: {
+    featuresImage?: any
+    features?: Array<{
+      icon?: string
+      title?: string
+      description?: string
+    }>
+  }
+}
+
+export function Features({ data }: FeaturesProps) {
+  const features = data?.features && data.features.length > 0 ? data.features : defaultFeatures
+  const imageUrl = data?.featuresImage ? urlFor(data.featuresImage).url() : "/images/manufacturing.jpg"
+
   return (
     <section className="bg-vellum py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
@@ -31,7 +55,7 @@ export function Features() {
           <div className="relative lg:w-5/12">
             <div className="relative aspect-[4/5] overflow-hidden">
               <Image
-                src="/images/manufacturing.jpg"
+                src={imageUrl}
                 alt="Brimatco precision manufacturing facility in Cheshire, Connecticut"
                 fill
                 className="object-cover"
@@ -59,21 +83,24 @@ export function Features() {
               Since 1973
             </h2>
             <div className="mt-10 flex flex-col gap-8">
-              {features.map((feature) => (
-                <div key={feature.title} className="flex gap-5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-drafting-grey/30 bg-muted">
-                    <feature.icon className="h-5 w-5 text-ruby" strokeWidth={1.5} />
+              {features.map((feature, idx) => {
+                const IconComponent = iconMap[feature.icon || ""] || Wrench
+                return (
+                  <div key={feature.title || idx} className="flex gap-5">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-drafting-grey/30 bg-muted">
+                      <IconComponent className="h-5 w-5 text-ruby" strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <h3 className="font-sans text-base font-bold uppercase tracking-wider text-cast-iron">
+                        {feature.title}
+                      </h3>
+                      <p className="mt-2 font-serif text-sm leading-relaxed text-steel">
+                        {feature.description}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-sans text-base font-bold uppercase tracking-wider text-cast-iron">
-                      {feature.title}
-                    </h3>
-                    <p className="mt-2 font-serif text-sm leading-relaxed text-steel">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
